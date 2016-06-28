@@ -170,8 +170,10 @@ public class MainLogic {
                     ChangeRequestAction action = b.getHead().getAction(ChangeRequestAction.class);
                     String url;
                     if (action == null) {
+                        // branch in this repository
                         url = repoLink.getUrl() + "/tree/" + b.getName();
                     } else {
+                        // pull request to this repository
                         url = repoLink.getUrl() + "/pull/" + action.getId();
                     }
                     branch.replaceAction(new GitHubLink("branch", url));
