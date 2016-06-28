@@ -41,6 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.util.Arrays.*;
+import jenkins.scm.api.actions.ChangeRequestAction;
 import org.jenkinsci.plugins.github_branch_source.RateLimitExceededException;
 
 /**
@@ -166,7 +167,14 @@ public class MainLogic {
             if (repoLink!=null) {
                 BulkChange bc = new BulkChange(branch);
                 try {
-                    branch.replaceAction(new GitHubLink("branch",repoLink.getUrl()+"/tree/"+b.getName()));
+                    ChangeRequestAction action = b.getHead().getAction(ChangeRequestAction.class);
+                    String url;
+                    if (action == null) {
+                        url = repoLink.getUrl() + "/tree/" + b.getName();
+                    } else {
+                        url = repoLink.getUrl() + "/pull/" + action.getId();
+                    }
+                    branch.replaceAction(new GitHubLink("branch", url));
                     bc.commit();
                 } finally {
                     bc.abort();
