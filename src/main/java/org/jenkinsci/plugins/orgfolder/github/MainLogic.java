@@ -119,11 +119,11 @@ public class MainLogic {
      */
     public void applyRepo(WorkflowMultiBranchProject item, GitHubSCMNavigator scm) throws IOException {
         if (UPDATING.get().add(item)) {
-            GitHub hub = connect(item, scm);
-            GHRepository repo = hub.getRepository(scm.getRepoOwner() + '/' + item.getName());
-
             BulkChange bc = new BulkChange(item);
             try {
+                GitHub hub = connect(item, scm);
+                GHRepository repo = hub.getRepository(scm.getRepoOwner() + '/' + item.getName());
+
                 item.setIcon(new GitHubRepoIcon());
                 item.replaceAction(new GitHubRepoAction(repo));
                 item.replaceAction(new GitHubLink("repo",repo.getHtmlUrl()));
@@ -162,24 +162,26 @@ public class MainLogic {
      */
     public void applyBranch(WorkflowJob branch, WorkflowMultiBranchProject repo, GitHubSCMNavigator scm) throws IOException {
         if (UPDATING.get().add(branch)) {
-            Branch b = repo.getProjectFactory().getBranch(branch);
-            GitHubLink repoLink = repo.getAction(GitHubLink.class);
-            if (repoLink!=null) {
-                BulkChange bc = new BulkChange(branch);
-                try {
+            BulkChange bc = new BulkChange(branch);
+            try {
+                Branch b = repo.getProjectFactory().getBranch(branch);
+                GitHubLink repoLink = repo.getAction(GitHubLink.class);
+                if (repoLink!=null) {
                     ChangeRequestAction action = b.getHead().getAction(ChangeRequestAction.class);
                     String url;
                     if (action == null) {
+                        // branch in this repository
                         url = repoLink.getUrl() + "/tree/" + b.getName();
                     } else {
+                        // pull request to this repository
                         url = repoLink.getUrl() + "/pull/" + action.getId();
                     }
                     branch.replaceAction(new GitHubLink("branch", url));
                     bc.commit();
-                } finally {
-                    bc.abort();
-                    UPDATING.get().remove(branch);
                 }
+            } finally {
+                bc.abort();
+                UPDATING.get().remove(branch);
             }
         }
     }
