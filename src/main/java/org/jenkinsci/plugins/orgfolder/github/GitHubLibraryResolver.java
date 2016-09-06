@@ -33,6 +33,7 @@ import java.util.Map;
 import jenkins.plugins.git.GitSCMSource;
 import org.jenkinsci.plugins.workflow.libs.LibraryConfiguration;
 import org.jenkinsci.plugins.workflow.libs.LibraryResolver;
+import org.jenkinsci.plugins.workflow.libs.SCMSourceRetriever;
 
 /**
  * Allows libraries to be loaded on the fly from GitHub.
@@ -49,7 +50,7 @@ import org.jenkinsci.plugins.workflow.libs.LibraryResolver;
             if (entry.getKey().matches("github[.]com/([^/]+)/([^/]+)")) {
                 String name = entry.getKey();
                 // Currently GitHubSCMSource offers no particular advantage here over GitSCMSource.
-                LibraryConfiguration lib = new LibraryConfiguration(name, new GitSCMSource(null, "https://" + name + ".git", "", "*", "", true));
+                LibraryConfiguration lib = new LibraryConfiguration(name, new SCMSourceRetriever(new GitSCMSource(null, "https://" + name + ".git", "", "*", "", true)));
                 lib.setDefaultVersion("master");
                 libs.add(lib);
             }
