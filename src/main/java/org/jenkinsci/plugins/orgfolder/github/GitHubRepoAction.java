@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.orgfolder.github;
 
 import hudson.model.InvisibleAction;
+import java.io.ObjectStreamException;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import org.kohsuke.github.GHRepository;
 
@@ -11,27 +12,18 @@ import java.net.URL;
  * that retains information about GitHub repository.
  *
  * @author Kohsuke Kawaguchi
+ * @deprecated use {@link org.jenkinsci.plugins.github_branch_source.GitHubRepoAction}
  */
-public class GitHubRepoAction extends InvisibleAction {
-    private final URL url;
-    private final String description;
-    private final String homepage;
+@Deprecated
+public class GitHubRepoAction extends org.jenkinsci.plugins.github_branch_source.GitHubRepoAction {
 
     GitHubRepoAction(GHRepository repo) {
-        this.url = repo.getHtmlUrl();
-        this.description = repo.getDescription();
-        this.homepage = repo.getHomepage();
+        super(repo);
     }
 
-    public URL getUrl() {
-        return url;
+    private Object readResolve() throws ObjectStreamException {
+        return new org.jenkinsci.plugins.github_branch_source.GitHubRepoAction(this);
     }
 
-    public String getDescription() {
-        return description;
-    }
 
-    public String getHomepage() {
-        return homepage;
-    }
 }

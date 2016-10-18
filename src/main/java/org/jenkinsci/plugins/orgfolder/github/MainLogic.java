@@ -20,6 +20,9 @@ import jenkins.model.Jenkins;
 import jenkins.scm.api.SCMSourceOwner;
 import jenkins.util.io.FileBoolean;
 import org.jenkinsci.plugins.github_branch_source.Connector;
+import org.jenkinsci.plugins.github_branch_source.GitHubOrgAction;
+import org.jenkinsci.plugins.github_branch_source.GitHubRepoAction;
+import org.jenkinsci.plugins.github_branch_source.GitHubRepositoryDescriptionColumn;
 import org.jenkinsci.plugins.github_branch_source.GitHubSCMNavigator;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
@@ -73,7 +76,7 @@ public class MainLogic {
                         new StatusColumn(),
                         new WeatherColumn(),
                         new CustomNameJobColumn(Messages.class,Messages._ListViewColumn_Repository()),
-                        new RepositoryDescriptionColumn()
+                        new GitHubRepositoryDescriptionColumn()
                     ));
                     lv.setIncludeRegex(".*");   // show all
                     of.addView(lv);
