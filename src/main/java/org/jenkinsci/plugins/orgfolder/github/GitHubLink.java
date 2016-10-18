@@ -2,13 +2,16 @@ package org.jenkinsci.plugins.orgfolder.github;
 
 import hudson.model.Action;
 
+import java.io.ObjectStreamException;
 import java.net.URL;
 
 /**
  * Link to GitHub
  *
  * @author Kohsuke Kawaguchi
+ * @deprecated use {@link org.jenkinsci.plugins.github_branch_source.GitHubLink}
  */
+@Deprecated
 public class GitHubLink implements Action {
     /**
      * Maps to the directory name under webapp/images
@@ -27,6 +30,10 @@ public class GitHubLink implements Action {
 
     /*package*/ GitHubLink(String image, URL url) {
         this(image,url.toExternalForm());
+    }
+
+    private Object readResolve() throws ObjectStreamException {
+        return new org.jenkinsci.plugins.github_branch_source.GitHubLink("icon-github-"+image, url);
     }
 
     public String getUrl() {
