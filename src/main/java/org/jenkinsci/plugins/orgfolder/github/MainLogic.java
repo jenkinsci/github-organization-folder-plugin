@@ -17,13 +17,19 @@ import hudson.views.WeatherColumn;
 import jenkins.branch.Branch;
 import jenkins.branch.OrganizationFolder;
 import jenkins.model.Jenkins;
+import jenkins.scm.api.SCMHead;
 import jenkins.scm.api.SCMSourceOwner;
 import jenkins.util.io.FileBoolean;
+import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.github_branch_source.BranchSCMHead;
 import org.jenkinsci.plugins.github_branch_source.Connector;
+import org.jenkinsci.plugins.github_branch_source.GitHubBranchFilter;
 import org.jenkinsci.plugins.github_branch_source.GitHubLink;
 import org.jenkinsci.plugins.github_branch_source.GitHubOrgIcon;
+import org.jenkinsci.plugins.github_branch_source.GitHubPullRequestFilter;
 import org.jenkinsci.plugins.github_branch_source.GitHubRepoIcon;
 import org.jenkinsci.plugins.github_branch_source.GitHubSCMNavigator;
+import org.jenkinsci.plugins.github_branch_source.PullRequestSCMHead;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import org.kohsuke.github.GHEvent;
@@ -137,14 +143,14 @@ public class MainLogic {
                     JobColumn name = cols.get(JobColumn.class);
                     if (name!=null)
                         cols.replace(name,new CustomNameJobColumn(Messages.class, Messages._ListViewColumn_Branch()));
-                    bv.getJobFilters().add(new BranchJobFilter());
+                    bv.getJobFilters().add(new GitHubBranchFilter());
 
                     ListView pv = new ListView("Pull Requests");
                     cols = pv.getColumns();
                     name = cols.get(JobColumn.class);
                     if (name!=null)
                         cols.replace(name,new CustomNameJobColumn(Messages.class, Messages._ListViewColumn_PullRequest()));
-                    pv.getJobFilters().add(new PullRequestJobFilter());
+                    pv.getJobFilters().add(new GitHubPullRequestFilter());
 
                     item.addView(bv);
                     item.addView(pv);
@@ -165,25 +171,31 @@ public class MainLogic {
      */
     public void applyBranch(WorkflowJob branch, WorkflowMultiBranchProject repo, GitHubSCMNavigator scm) throws IOException {
         if (UPDATING.get().add(branch)) {
-            BulkChange bc = new BulkChange(branch);
-            try {
+            try{
                 Branch b = repo.getProjectFactory().getBranch(branch);
                 GitHubLink repoLink = repo.getAction(GitHubLink.class);
                 if (repoLink!=null) {
-                    ChangeRequestAction action = b.getHead().getAction(ChangeRequestAction.class);
+                    SCMHead head = b.getHead();
                     String url;
-                    if (action == null) {
+                    if (head instanceof PullRequestSCMHead){
+                        // pull request to this repository
+                        url = repoLink.getUrl() + "/pull/" + ((PullRequestSCMHead) head).getNumber();
+                    } else {
                         // branch in this repository
                         url = repoLink.getUrl() + "/tree/" + b.getName();
-                    } else {
-                        // pull request to this repository
-                        url = repoLink.getUrl() + "/pull/" + action.getId();
                     }
-                    branch.replaceAction(new GitHubLink("branch", url));
-                    bc.commit();
+                    GitHubLink branchAction = branch.getAction(GitHubLink.class);
+                    if (branchAction == null || !StringUtils.equals(url, branchAction.getUrl())) {
+                        BulkChange bc = new BulkChange(branch);
+                        try {
+                            branch.replaceAction(new GitHubLink("branch", url));
+                            bc.commit();
+                        } finally {
+                            bc.abort();
+                        }
+                    }
                 }
             } finally {
-                bc.abort();
                 UPDATING.get().remove(branch);
             }
         }
