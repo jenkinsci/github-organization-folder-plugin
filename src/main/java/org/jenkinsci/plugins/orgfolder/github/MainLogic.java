@@ -24,7 +24,10 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.github_branch_source.BranchSCMHead;
 import org.jenkinsci.plugins.github_branch_source.Connector;
 import org.jenkinsci.plugins.github_branch_source.GitHubBranchFilter;
+import org.jenkinsci.plugins.github_branch_source.GitHubOrgAction;
 import org.jenkinsci.plugins.github_branch_source.GitHubPullRequestFilter;
+import org.jenkinsci.plugins.github_branch_source.GitHubRepoAction;
+import org.jenkinsci.plugins.github_branch_source.GitHubRepositoryDescriptionColumn;
 import org.jenkinsci.plugins.github_branch_source.GitHubSCMNavigator;
 import org.jenkinsci.plugins.github_branch_source.PullRequestSCMHead;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
@@ -79,7 +82,7 @@ public class MainLogic {
                         new StatusColumn(),
                         new WeatherColumn(),
                         new CustomNameJobColumn(Messages.class,Messages._ListViewColumn_Repository()),
-                        new RepositoryDescriptionColumn()
+                        new GitHubRepositoryDescriptionColumn()
                     ));
                     lv.setIncludeRegex(".*");   // show all
                     of.addView(lv);

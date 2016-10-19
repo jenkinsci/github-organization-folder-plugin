@@ -1,40 +1,18 @@
 package org.jenkinsci.plugins.orgfolder.github;
 
-import hudson.Extension;
-import hudson.model.Item;
 import hudson.views.ListViewColumn;
-import hudson.views.ListViewColumnDescriptor;
-import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
-import org.kohsuke.stapler.DataBoundConstructor;
+import java.io.ObjectStreamException;
+import org.jenkinsci.plugins.github_branch_source.GitHubRepositoryDescriptionColumn;
 
 /**
  * {@link ListViewColumn} that shows the description text of repository.
  *
  * @author Kohsuke Kawaguchi
+ * @deprecated use {@link GitHubRepositoryDescriptionColumn}
  */
-public class RepositoryDescriptionColumn extends ListViewColumn {
-    @DataBoundConstructor
-    public RepositoryDescriptionColumn() {
-    }
-
-    public GitHubRepoAction getPropertyOf(Item item) {
-        if (item instanceof WorkflowMultiBranchProject) {
-            WorkflowMultiBranchProject job = (WorkflowMultiBranchProject) item;
-            return job.getAction(GitHubRepoAction.class);
-        }
-        return null;
-    }
-
-    @Extension
-    public static class DescriptorImpl extends ListViewColumnDescriptor {
-        @Override
-        public String getDisplayName() {
-            return "GitHub Repository Description";
-        }
-
-        @Override
-        public boolean shownByDefault() {
-            return false;
-        }
+@Deprecated
+public class RepositoryDescriptionColumn extends GitHubRepositoryDescriptionColumn {
+    private Object readResolve() throws ObjectStreamException {
+        return new GitHubRepositoryDescriptionColumn();
     }
 }

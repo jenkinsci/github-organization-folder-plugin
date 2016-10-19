@@ -5,6 +5,7 @@ import com.cloudbees.hudson.plugins.folder.FolderIcon;
 import com.cloudbees.hudson.plugins.folder.FolderIconDescriptor;
 import hudson.Extension;
 import hudson.model.Hudson;
+import org.jenkinsci.plugins.github_branch_source.GitHubOrgAction;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.Stapler;
 
