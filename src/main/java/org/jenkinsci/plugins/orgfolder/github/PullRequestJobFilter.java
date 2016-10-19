@@ -1,32 +1,30 @@
 package org.jenkinsci.plugins.orgfolder.github;
 
-import hudson.Extension;
-import hudson.model.Descriptor;
+import hudson.model.TopLevelItem;
+import hudson.model.View;
 import hudson.views.ViewJobFilter;
-import jenkins.scm.api.SCMHead;
-import org.jenkinsci.plugins.github_branch_source.PullRequestSCMHead;
-import org.kohsuke.stapler.DataBoundConstructor;
+import java.io.ObjectStreamException;
+import java.util.List;
+import org.jenkinsci.plugins.github_branch_source.GitHubPullRequestFilter;
 
 /**
- * Show PRs excluding branch jobs.
- *
- * @author Kohsuke Kawaguchi
+ * Retained for on-disk compatibility only.
+ * @deprecated use {@link GitHubPullRequestFilter}
  */
-public class PullRequestJobFilter extends AbstractBranchJobFilter {
-    @DataBoundConstructor
-    public PullRequestJobFilter() {}
+@Deprecated
+public final class PullRequestJobFilter extends ViewJobFilter {
 
-    @Override
-    protected boolean shouldShow(SCMHead head) {
-        return head instanceof PullRequestSCMHead;
+    private PullRequestJobFilter() {
+        throw new IllegalStateException("Deprecated");
     }
 
-    @Extension
-    public static class DescriptorImpl extends Descriptor<ViewJobFilter> {
-        @Override
-        public String getDisplayName() {
-            return "GitHub Pull Request Jobs Only";
-        }
+    @Override
+    public List<TopLevelItem> filter(List<TopLevelItem> added, List<TopLevelItem> all, View filteringView) {
+        return added;
+    }
+
+    private Object readResolve() throws ObjectStreamException {
+        return new GitHubPullRequestFilter();
     }
 
 }
