@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.orgfolder.github;
 
 import hudson.model.InvisibleAction;
+import java.io.ObjectStreamException;
 import jenkins.branch.OrganizationFolder;
 import org.kohsuke.github.GHUser;
 
@@ -12,27 +13,17 @@ import java.net.URL;
  * retains information about GitHub organization.
  *
  * @author Kohsuke Kawaguchi
+ * @deprecated use {@link org.jenkinsci.plugins.github_branch_source.GitHubOrgAction}
  */
-public class GitHubOrgAction extends InvisibleAction {
-    private final URL url;
-    private final String name;
-    private final String avatar;
+@Deprecated
+public class GitHubOrgAction extends org.jenkinsci.plugins.github_branch_source.GitHubOrgAction {
 
     GitHubOrgAction(GHUser org) throws IOException {
-        this.url = org.getHtmlUrl();
-        this.name = org.getName();
-        this.avatar = org.getAvatarUrl();
+        super(org);
     }
 
-    public URL getUrl() {
-        return url;
+    private Object readResolve() throws ObjectStreamException{
+        return new org.jenkinsci.plugins.github_branch_source.GitHubOrgAction(this);
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
 }
