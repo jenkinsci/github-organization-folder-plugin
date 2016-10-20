@@ -1,4 +1,5 @@
 # GitHub Organization Folder
+
 This plugin defines GitHub Organization Folder capability.
 
 1. In this new subsystem, you first let Jenkins know where you host your source code repositories.
