@@ -16,66 +16,17 @@ import java.util.logging.Logger;
  * {@link JobColumn} with different caption
  *
  * @author Kohsuke Kawaguchi
+ * @deprecated use {@link com.cloudbees.hudson.plugins.folder.views.CustomNameJobColumn}
  */
-public class CustomNameJobColumn extends JobColumn {
-    /**
-     * Resource bundle name.
-     */
-    private final String bundle;
-    private final String key;
+@Deprecated
+public class CustomNameJobColumn extends com.cloudbees.hudson.plugins.folder.views.CustomNameJobColumn {
 
-    private transient Localizable loc;
-
-    @DataBoundConstructor
-    public CustomNameJobColumn(String bundle, String key) {
-        this.bundle = bundle;
-        this.key = key;
-        readResolve();
-    }
-
-    public CustomNameJobColumn(Class bundle, Localizable loc) {
-        this.bundle = bundle.getName();
-        this.key = loc.getKey();
-        this.loc = loc;
+    private CustomNameJobColumn(String bundle, String key) {
+        super(bundle, key);
     }
 
     private Object readResolve() {
-        try {
-            loc = new Localizable(
-                ResourceBundleHolder.get(Jenkins.getActiveInstance().pluginManager.uberClassLoader.loadClass(bundle)),
-                key);
-        } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.WARNING, "No such bundle: "+bundle);
-            loc = new NonLocalizable(bundle+':'+key);
-        }
-        return this;
+        return new com.cloudbees.hudson.plugins.folder.views.CustomNameJobColumn(getBundle(), getKey());
     }
 
-
-    public String getBundle() {
-        return bundle;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public String getMessage() {
-        return loc.toString();
-    }
-
-    @Extension
-    public static class DescriptorImpl extends ListViewColumnDescriptor {
-        @Override
-        public String getDisplayName() {
-            return "Job Name with Custom Title";
-        }
-
-        @Override
-        public boolean shownByDefault() {
-            return false;
-        }
-    }
-
-    private static final Logger LOGGER = Logger.getLogger(CustomNameJobColumn.class.getName());
 }

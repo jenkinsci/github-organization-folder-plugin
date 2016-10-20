@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.orgfolder.github;
 
+import com.cloudbees.hudson.plugins.folder.views.CustomNameJobColumn;
 import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import hudson.BulkChange;
 import hudson.Extension;
