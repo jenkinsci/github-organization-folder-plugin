@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.orgfolder.github;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.views.JobColumn;
 import hudson.views.ListViewColumnDescriptor;
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
  * @deprecated use {@link com.cloudbees.hudson.plugins.folder.views.CustomNameJobColumn}
  */
 @Deprecated
+@SuppressFBWarnings("NM_SAME_SIMPLE_NAME_AS_SUPERCLASS")
 public class CustomNameJobColumn extends com.cloudbees.hudson.plugins.folder.views.CustomNameJobColumn {
 
     private CustomNameJobColumn(String bundle, String key) {
