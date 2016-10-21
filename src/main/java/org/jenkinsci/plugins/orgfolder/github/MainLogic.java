@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.orgfolder.github;
 
-import com.cloudbees.hudson.plugins.folder.views.CustomNameJobColumn;
 import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import hudson.BulkChange;
 import hudson.Extension;
@@ -85,7 +84,7 @@ public class MainLogic {
                     lv.getColumns().replaceBy(asList(
                         new StatusColumn(),
                         new WeatherColumn(),
-                        new CustomNameJobColumn(Messages.class,Messages._ListViewColumn_Repository()),
+                        new JobColumn(),
                         new GitHubRepositoryDescriptionColumn()
                     ));
                     lv.setIncludeRegex(".*");   // show all
@@ -143,17 +142,9 @@ public class MainLogic {
                 if (item.getView("Branches")==null && item.getView("All") instanceof AllView) {
                     // create initial views
                     ListView bv = new ListView("Branches");
-                    DescribableList<ListViewColumn, Descriptor<ListViewColumn>> cols = bv.getColumns();
-                    JobColumn name = cols.get(JobColumn.class);
-                    if (name!=null)
-                        cols.replace(name,new CustomNameJobColumn(Messages.class, Messages._ListViewColumn_Branch()));
                     bv.getJobFilters().add(new GitHubBranchFilter());
 
                     ListView pv = new ListView("Pull Requests");
-                    cols = pv.getColumns();
-                    name = cols.get(JobColumn.class);
-                    if (name!=null)
-                        cols.replace(name,new CustomNameJobColumn(Messages.class, Messages._ListViewColumn_PullRequest()));
                     pv.getJobFilters().add(new GitHubPullRequestFilter());
 
                     item.addView(bv);

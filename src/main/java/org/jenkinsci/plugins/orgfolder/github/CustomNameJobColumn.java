@@ -1,34 +1,18 @@
 package org.jenkinsci.plugins.orgfolder.github;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import hudson.Extension;
 import hudson.views.JobColumn;
-import hudson.views.ListViewColumnDescriptor;
-import jenkins.model.Jenkins;
-import jenkins.util.NonLocalizable;
-import org.jvnet.localizer.Localizable;
-import org.jvnet.localizer.ResourceBundleHolder;
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * {@link JobColumn} with different caption
  *
  * @author Kohsuke Kawaguchi
- * @deprecated use {@link com.cloudbees.hudson.plugins.folder.views.CustomNameJobColumn}
+ * @deprecated use {@link JobColumn}
  */
 @Deprecated
-@SuppressFBWarnings("NM_SAME_SIMPLE_NAME_AS_SUPERCLASS")
-public class CustomNameJobColumn extends com.cloudbees.hudson.plugins.folder.views.CustomNameJobColumn {
-
-    private CustomNameJobColumn(String bundle, String key) {
-        super(bundle, key);
-    }
+public class CustomNameJobColumn extends JobColumn {
 
     private Object readResolve() {
-        return new com.cloudbees.hudson.plugins.folder.views.CustomNameJobColumn(getBundle(), getKey());
+        return new JobColumn();
     }
 
 }
