@@ -3,7 +3,6 @@ package org.jenkinsci.plugins.orgfolder.github;
 import hudson.Extension;
 import hudson.model.Item;
 import hudson.model.listeners.ItemListener;
-import org.jenkinsci.plugins.orgfolder.github.Sniffer.BranchMatch;
 import org.jenkinsci.plugins.orgfolder.github.Sniffer.OrgMatch;
 import org.jenkinsci.plugins.orgfolder.github.Sniffer.RepoMatch;
 
@@ -43,13 +42,8 @@ public class ItemListenerImpl extends ItemListener {
 
             RepoMatch r = Sniffer.matchRepo(item);
             if (r!=null) {
-                main.applyRepo(r.repo, r.scm);
             }
 
-            BranchMatch b = Sniffer.matchBranch(item);
-            if (b!=null) {
-                main.applyBranch(b.branch, b.repo, b.scm);
-            }
         } catch (FileNotFoundException e) {
             LOGGER.log(Level.FINE, "Failed to apply GitHub Org Folder theme to " + item.getFullName() + 
                     " because the Org does not exists or it's not accessible", e);

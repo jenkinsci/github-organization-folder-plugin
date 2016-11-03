@@ -60,26 +60,4 @@ class Sniffer {
         return null;
     }
 
-    static class BranchMatch extends RepoMatch {
-        final WorkflowJob branch;
-
-        public BranchMatch(RepoMatch x, WorkflowJob branch) {
-            super(x,x.repo);
-            this.branch = branch;
-        }
-
-        public Branch getScmBranch() {
-            return repo.getProjectFactory().getBranch(branch);
-        }
-    }
-
-    public static BranchMatch matchBranch(Item item) {
-        if (item instanceof WorkflowJob) {
-            WorkflowJob branch = (WorkflowJob)item;
-            RepoMatch x = matchRepo(item.getParent());
-            if (x!=null)
-                return new BranchMatch(x,branch);
-        }
-        return null;
-    }
 }

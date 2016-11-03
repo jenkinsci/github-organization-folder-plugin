@@ -4,41 +4,17 @@ import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import hudson.BulkChange;
 import hudson.Extension;
 import hudson.model.AbstractItem;
-import hudson.model.AllView;
-import hudson.model.Descriptor;
 import hudson.model.Item;
-import hudson.model.ListView;
 import hudson.model.listeners.ItemListener;
-import hudson.util.DescribableList;
-import hudson.views.JobColumn;
-import hudson.views.ListViewColumn;
-import hudson.views.StatusColumn;
-import hudson.views.WeatherColumn;
-import jenkins.branch.Branch;
 import jenkins.branch.OrganizationFolder;
 import jenkins.model.Jenkins;
-import jenkins.scm.api.SCMHead;
 import jenkins.scm.api.SCMSourceOwner;
 import jenkins.util.io.FileBoolean;
-import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.github_branch_source.BranchSCMHead;
 import org.jenkinsci.plugins.github_branch_source.Connector;
-import org.jenkinsci.plugins.github_branch_source.GitHubBranchFilter;
-import org.jenkinsci.plugins.github_branch_source.GitHubLink;
-import org.jenkinsci.plugins.github_branch_source.GitHubOrgAction;
-import org.jenkinsci.plugins.github_branch_source.GitHubOrgIcon;
-import org.jenkinsci.plugins.github_branch_source.GitHubPullRequestFilter;
-import org.jenkinsci.plugins.github_branch_source.GitHubRepoAction;
-import org.jenkinsci.plugins.github_branch_source.GitHubRepoIcon;
-import org.jenkinsci.plugins.github_branch_source.GitHubRepositoryDescriptionColumn;
 import org.jenkinsci.plugins.github_branch_source.GitHubSCMNavigator;
-import org.jenkinsci.plugins.github_branch_source.PullRequestSCMHead;
-import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import org.kohsuke.github.GHEvent;
 import org.kohsuke.github.GHHook;
 import org.kohsuke.github.GHOrganization;
-import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 
@@ -52,8 +28,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static java.util.Arrays.*;
-import jenkins.scm.api.actions.ChangeRequestAction;
 import org.jenkinsci.plugins.github_branch_source.RateLimitExceededException;
 
 /**
@@ -72,26 +46,6 @@ public class MainLogic {
             try {
                 GitHub hub = connect(of, scm);
                 GHUser u = hub.getUser(scm.getRepoOwner());
-
-                of.setIcon(new GitHubOrgIcon());
-                of.replaceAction(new GitHubOrgAction(u));
-                of.replaceAction(new GitHubLink("logo",u.getHtmlUrl()));
-                if (of.getDisplayNameOrNull()==null)
-                    of.setDisplayName(u.getName());
-                if (of.getView("Repositories")==null && of.getView("All") instanceof AllView) {
-                    // need to set the default view
-                    ListView lv = new ListView("Repositories");
-                    lv.getColumns().replaceBy(asList(
-                        new StatusColumn(),
-                        new WeatherColumn(),
-                        new JobColumn(),
-                        new GitHubRepositoryDescriptionColumn()
-                    ));
-                    lv.setIncludeRegex(".*");   // show all
-                    of.addView(lv);
-                    of.deleteView(of.getView("All"));
-                    of.setPrimaryView(lv);
-                }
 
                 FileBoolean orghook = new FileBoolean(new File(of.getRootDir(),"GitHubOrgHook."+scm.getRepoOwner()));
                 if (orghook.isOff()) {
@@ -122,76 +76,6 @@ public class MainLogic {
             } finally {
                 bc.abort();
                 UPDATING.get().remove(of);
-            }
-        }
-    }
-
-    /**
-     * Applies UI customizations to a level below {@link OrganizationFolder}, which maps to a repository.
-     */
-    public void applyRepo(WorkflowMultiBranchProject item, GitHubSCMNavigator scm) throws IOException {
-        if (UPDATING.get().add(item)) {
-            BulkChange bc = new BulkChange(item);
-            try {
-                GitHub hub = connect(item, scm);
-                GHRepository repo = hub.getRepository(scm.getRepoOwner() + '/' + item.getName());
-
-                item.setIcon(new GitHubRepoIcon());
-                item.replaceAction(new GitHubRepoAction(repo));
-                item.replaceAction(new GitHubLink("repo",repo.getHtmlUrl()));
-                if (item.getView("Branches")==null && item.getView("All") instanceof AllView) {
-                    // create initial views
-                    ListView bv = new ListView("Branches");
-                    bv.getJobFilters().add(new GitHubBranchFilter());
-
-                    ListView pv = new ListView("Pull Requests");
-                    pv.getJobFilters().add(new GitHubPullRequestFilter());
-
-                    item.addView(bv);
-                    item.addView(pv);
-                    item.deleteView(item.getView("All"));
-                    item.setPrimaryView(bv);
-                }
-
-                bc.commit();
-            } finally {
-                bc.abort();
-                UPDATING.get().remove(item);
-            }
-        }
-    }
-
-    /**
-     * Applies UI customizations to two levels below {@link OrganizationFolder}, which maps to a branch.
-     */
-    public void applyBranch(WorkflowJob branch, WorkflowMultiBranchProject repo, GitHubSCMNavigator scm) throws IOException {
-        if (UPDATING.get().add(branch)) {
-            try{
-                Branch b = repo.getProjectFactory().getBranch(branch);
-                GitHubLink repoLink = repo.getAction(GitHubLink.class);
-                if (repoLink!=null) {
-                    SCMHead head = b.getHead();
-                    String url;
-                    if (head instanceof PullRequestSCMHead){
-                        // pull request to this repository
-                        url = repoLink.getUrl() + "/pull/" + ((PullRequestSCMHead) head).getNumber();
-                    } else {
-                        // branch in this repository
-                        url = repoLink.getUrl() + "/tree/" + b.getName();
-                    }
-                    GitHubLink branchAction = branch.getAction(GitHubLink.class);
-                    if (branchAction == null || !StringUtils.equals(url, branchAction.getUrl())) {
-                        BulkChange bc = new BulkChange(branch);
-                        try {
-                            branch.replaceAction(new GitHubLink("branch", url));
-                            bc.commit();
-                        } finally {
-                            bc.abort();
-                        }
-                    }
-                }
-            } finally {
-                UPDATING.get().remove(branch);
             }
         }
     }
