@@ -1,5 +1,6 @@
 <?jelly escape-by-default='true'?>
 <div>
-  Scan entire GitHub organization for buildable branches and pull requests, in repositories.
-  See <a href="http://jenkins-ci.org/solutions/pipeline/">Pipeline as Code solution page</a> for more details.
+  The functionality that was provided by this plugin has been moved to the
+  <a href="https://wiki.jenkins-ci.org/display/JENKINS/GitHub+Branch+Source+Plugin">GitHub Branch Source plugin</a>.
+  You can safely delete this plugin once there are no plugins that depending on it installed.
 </div>
