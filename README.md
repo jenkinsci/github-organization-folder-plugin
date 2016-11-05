@@ -20,7 +20,7 @@ gets destroyed from Jenkins as well automatically.
 
 In this use, there'll be a lot of `Jenkinsfile` in various branches & repositories.
 To keep them DRY, various mechanisms will be provided to promote reuse of Pipeline scripts, such as
-[this](https://github.com/jenkinsci/workflow-plugin/blob/master/cps-global-lib/README.md).
+[Pipeline Shared Libraries](https://github.com/jenkinsci/workflow-cps-global-lib-plugin).
 
 
 # Hook configuration
