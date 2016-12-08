@@ -16,11 +16,10 @@ import org.kohsuke.github.GHRepository;
 public class GitHubRepoAction extends GitHubRepoMetadataAction {
 
     GitHubRepoAction(GHRepository repo) {
-        super(repo);
     }
 
     private Object readResolve() throws ObjectStreamException {
-        return new GitHubRepoMetadataAction(this);
+        return new GitHubRepoMetadataAction();
     }
 
 
