@@ -2,5 +2,5 @@
 <div>
   The functionality that was provided by this plugin has been moved to the
   <a href="https://wiki.jenkins-ci.org/display/JENKINS/GitHub+Branch+Source+Plugin">GitHub Branch Source plugin</a>.
-  You can safely delete this plugin once there are no plugins that depending on it installed.
+  You can safely delete this plugin once there are no plugins that depend on this plugin installed.
 </div>
