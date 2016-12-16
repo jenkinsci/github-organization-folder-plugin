@@ -2,17 +2,17 @@ package org.jenkinsci.plugins.orgfolder.github;
 
 import hudson.views.ListViewColumn;
 import java.io.ObjectStreamException;
-import org.jenkinsci.plugins.github_branch_source.GitHubRepositoryDescriptionColumn;
+import jenkins.branch.DescriptionColumn;
 
 /**
  * {@link ListViewColumn} that shows the description text of repository.
  *
  * @author Kohsuke Kawaguchi
- * @deprecated use {@link GitHubRepositoryDescriptionColumn}
+ * @deprecated use {@link DescriptionColumn}
  */
 @Deprecated
-public class RepositoryDescriptionColumn extends GitHubRepositoryDescriptionColumn {
+public class RepositoryDescriptionColumn extends DescriptionColumn {
     private Object readResolve() throws ObjectStreamException {
-        return new GitHubRepositoryDescriptionColumn();
+        return new DescriptionColumn();
     }
 }
